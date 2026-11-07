@@ -3,7 +3,13 @@
 > A full-stack automotive dealership management system and customer marketplace built for the **Isocode Labs Software Engineering Internship** take-home assignment.
 
 AutoVista modernizes the automotive buying journey for enterprise dealerships in India (centered around Lucknow, Uttar Pradesh). It provides a unified platform connecting retail car buyers, sales consultants, and dealership leadership with database-backed on-road pricing, concurrency-safe test-drive scheduling, grounded AI sales assistance, and comprehensive audit trails.
+## Live Application
 
+**Frontend:** https://auto-vista-chi.vercel.app/
+
+**Backend Health:** https://autovista-backend.onrender.com/api/health
+
+**GitHub Repository:** https://github.com/Tejaswini5407/AutoVista
 ---
 
 ## Table of Contents
