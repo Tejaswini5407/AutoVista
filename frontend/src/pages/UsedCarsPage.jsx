@@ -56,7 +56,8 @@ function UsedCarsPage() {
 
   // Filter cars based on fuel type and price
   const filteredCars = useMemo(() => {
-    return usedCars.filter((car) => {
+    return (usedCars || []).filter((car) => {
+      if (!car) return false
       // Fuel filter
       if (filterFuel !== 'ALL') {
         const carFuel = (car.fuelType || '').toUpperCase()

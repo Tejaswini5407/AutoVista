@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import useDocumentTitle from '../hooks/useDocumentTitle.js'
 import { useAuth } from '../hooks/useAuth.js'
 import Badge from '../components/Badge.jsx'
@@ -28,7 +29,11 @@ const STATUS_OPTIONS = [
 function ConsultantDashboardPage() {
   useDocumentTitle('Consultant Workspace')
   const { user, loginAsDemo } = useAuth()
+  const navigate = useNavigate()
   const isAuthorized = user && (user.role === 'CONSULTANT' || user.role === 'ADMIN')
+
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authError, setAuthError] = useState(null)
 
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(isAuthorized)
@@ -314,20 +319,52 @@ function ConsultantDashboardPage() {
               The Sales Consultant Workspace is reserved for active dealership sales advisors.
               Access requires an authenticated consultant session.
             </p>
+
+            {authError && (
+              <div className="alert-box alert-danger mt-4 text-left text-sm">
+                {authError}
+              </div>
+            )}
+
             <div className="mt-6 flex flex-col gap-3">
               <button
                 type="button"
                 className="btn btn-primary w-full py-2.5 rounded-xl font-medium"
-                onClick={() => loginAsDemo('consultant')}
+                disabled={authLoading}
+                onClick={async () => {
+                  setAuthLoading(true)
+                  setAuthError(null)
+                  try {
+                    await loginAsDemo('consultant')
+                  } catch (err) {
+                    setAuthError(err.message || 'Consultant sign-in failed. Please verify backend connection.')
+                  } finally {
+                    setAuthLoading(false)
+                  }
+                }}
               >
-                Sign In as Vikram Singh (Consultant)
+                {authLoading ? 'Signing In...' : 'Sign In as Vikram Singh (Consultant)'}
               </button>
               <button
                 type="button"
                 className="btn btn-outline w-full py-2.5 rounded-xl font-medium"
-                onClick={() => loginAsDemo('admin')}
+                disabled={authLoading}
+                onClick={async () => {
+                  setAuthLoading(true)
+                  setAuthError(null)
+                  try {
+                    const authUser = await loginAsDemo('admin')
+                    if (authUser?.role === 'ADMIN') {
+                      navigate('/admin/dashboard')
+                    }
+                  } catch (err) {
+                    setAuthError(err.message || 'Admin sign-in failed. Please verify backend connection.')
+                  } finally {
+                    setAuthLoading(false)
+                  }
+                }}
               >
-                Sign In as Admin (Full Control)
+                {authLoading ? 'Signing In...' : 'Sign In as Admin (Full Control)'}
               </button>
             </div>
           </div>

@@ -156,14 +156,18 @@ function EnquiryModal({ isOpen, onClose, vehicle, vehicleType = 'NEW' }) {
                 <span>Authentication required to submit vehicle enquiry.</span>
                 <button
                   type="button"
-                  onClick={() => {
-                    loginAsDemo('customer')
-                    setFormData((p) => ({
-                      ...p,
-                      customerName: 'Aarav Sharma (Verified Buyer)',
-                      customerEmail: 'aarav.sharma@example.com',
-                      customerPhone: '+91 98765 11223',
-                    }))
+                  onClick={async () => {
+                    try {
+                      await loginAsDemo('customer')
+                      setFormData((p) => ({
+                        ...p,
+                        customerName: 'Aarav Sharma (Verified Buyer)',
+                        customerEmail: 'aarav.sharma@example.com',
+                        customerPhone: '+91 98765 11223',
+                      }))
+                    } catch (err) {
+                      setError(err.message || 'Quick sign-in failed. Please verify connection.')
+                    }
                   }}
                   className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-neutral-950 rounded font-medium transition"
                 >

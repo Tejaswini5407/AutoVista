@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getUsedCarById } from '../services/marketplaceService.js'
+import { getUsedCarById, getUsedCars } from '../services/marketplaceService.js'
 import { formatINR, formatMileage, maskRegistrationNumber } from '../utils/formatters.js'
 import Badge from '../components/Badge.jsx'
 import EnquiryModal from '../components/EnquiryModal.jsx'
@@ -19,7 +19,21 @@ function UsedCarDetailsPage() {
 
   useEffect(() => {
     let ignore = false
-    getUsedCarById(id)
+    const isNumeric = /^\d+$/.test(id)
+    const fetchPromise = isNumeric
+      ? getUsedCarById(id)
+      : getUsedCars('ALL').then((cars) => {
+          const match = cars?.find(
+            (c) =>
+              String(c.id) === String(id) ||
+              c.modelName?.toLowerCase().replace(/\s+/g, '-').includes(id.toLowerCase()) ||
+              id.toLowerCase().includes(c.modelName?.toLowerCase().replace(/\s+/g, '-'))
+          )
+          if (match) return getUsedCarById(match.id)
+          return getUsedCarById(1)
+        })
+
+    fetchPromise
       .then((data) => {
         if (!ignore) {
           setCar(data)

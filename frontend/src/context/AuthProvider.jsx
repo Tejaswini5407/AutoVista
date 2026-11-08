@@ -3,33 +3,6 @@ import AuthContext from './AuthContext.js'
 
 import apiRequest from '../services/apiClient.js'
 
-const DEMO_USERS = {
-  customer: {
-    id: 'user-101',
-    name: 'Aarav Sharma',
-    fullName: 'Aarav Sharma',
-    email: 'aarav.sharma@example.com',
-    role: 'CUSTOMER',
-    city: 'Lucknow',
-  },
-  consultant: {
-    id: 'consultant-201',
-    name: 'Vikram Singh',
-    fullName: 'Vikram Singh',
-    email: 'vikram.consultant@autovista.in',
-    role: 'CONSULTANT',
-    branch: 'Lucknow Flagship',
-  },
-  admin: {
-    id: 'admin-301',
-    name: 'Pooja Verma',
-    fullName: 'Pooja Verma',
-    email: 'admin@autovista.in',
-    role: 'ADMIN',
-    dealership: 'AutoVista Lucknow',
-  },
-}
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('autovista_user')
@@ -50,81 +23,72 @@ export function AuthProvider({ children }) {
     if (roleKey === 'consultant') email = 'vikram.consultant@autovista.in'
     if (roleKey === 'customer') email = 'aarav.sharma@example.com'
 
-    try {
-      const res = await apiRequest('/auth/login', {
-        method: 'POST',
-        body: { email, password: 'Password@123' },
-      })
-      const authData = res.data
-      const userPayload = authData?.user || authData
-      if (authData?.token) {
-        localStorage.setItem('autovista_jwt_token', authData.token)
-      }
-      const loggedUser = {
-        id: userPayload.id,
-        name: userPayload.fullName || userPayload.name || userPayload.email?.split('@')[0] || 'User',
-        fullName: userPayload.fullName || userPayload.name || 'User',
-        email: userPayload.email,
-        role: userPayload.role,
-        phone: userPayload.phone,
-        city: userPayload.city,
-      }
-      setUser(loggedUser)
-      return loggedUser
-    } catch (err) {
-      console.warn('Backend login fallback to mock:', err.message)
-      const targetUser = DEMO_USERS[roleKey]
-      setUser(targetUser)
-      return targetUser
+    const res = await apiRequest('/auth/login', {
+      method: 'POST',
+      body: { email, password: 'Password@123' },
+    })
+    const authData = res.data
+    const userPayload = authData?.user || authData
+    if (authData?.token) {
+      localStorage.setItem('autovista_jwt_token', authData.token)
     }
+    const loggedUser = {
+      id: userPayload.id,
+      name: userPayload.fullName || userPayload.name || userPayload.email?.split('@')[0] || 'User',
+      fullName: userPayload.fullName || userPayload.name || 'User',
+      email: userPayload.email,
+      role: userPayload.role,
+      phone: userPayload.phone,
+      city: userPayload.city,
+    }
+    setUser(loggedUser)
+    return loggedUser
   }
 
   const login = async (email, password = 'Password@123') => {
-    try {
-      const res = await apiRequest('/auth/login', {
-        method: 'POST',
-        body: { email, password },
-      })
-      const authData = res.data
-      const userPayload = authData?.user || authData
-      if (authData?.token) {
-        localStorage.setItem('autovista_jwt_token', authData.token)
-      }
-      const loggedUser = {
-        id: userPayload.id,
-        name: userPayload.fullName || userPayload.name || userPayload.email?.split('@')[0] || 'User',
-        fullName: userPayload.fullName || userPayload.name || 'User',
-        email: userPayload.email,
-        role: userPayload.role,
-        phone: userPayload.phone,
-        city: userPayload.city,
-      }
-      setUser(loggedUser)
-      return { success: true, user: loggedUser }
-    } catch (err) {
-      console.warn('Backend login fallback to mock:', err.message)
-      // Fallback for Phase 1 demo login
-      if (email.includes('admin')) {
-        const u = DEMO_USERS.admin
-        setUser(u)
-        return { success: true, user: u }
-      }
-      if (email.includes('consultant')) {
-        const u = DEMO_USERS.consultant
-        setUser(u)
-        return { success: true, user: u }
-      }
-      const u = {
-        id: 'user-' + Date.now(),
-        name: email.split('@')[0],
-        fullName: email.split('@')[0],
-        email,
-        role: 'CUSTOMER',
-        city: 'Lucknow',
-      }
-      setUser(u)
-      return { success: true, user: u }
+    const res = await apiRequest('/auth/login', {
+      method: 'POST',
+      body: { email, password },
+    })
+    const authData = res.data
+    const userPayload = authData?.user || authData
+    if (authData?.token) {
+      localStorage.setItem('autovista_jwt_token', authData.token)
     }
+    const loggedUser = {
+      id: userPayload.id,
+      name: userPayload.fullName || userPayload.name || userPayload.email?.split('@')[0] || 'User',
+      fullName: userPayload.fullName || userPayload.name || 'User',
+      email: userPayload.email,
+      role: userPayload.role,
+      phone: userPayload.phone,
+      city: userPayload.city,
+    }
+    setUser(loggedUser)
+    return { success: true, user: loggedUser }
+  }
+
+  const register = async ({ email, password, fullName, phone, city = 'Lucknow', consentGiven = true }) => {
+    const res = await apiRequest('/auth/register', {
+      method: 'POST',
+      body: { email, password, fullName, phone, city, consentGiven },
+    })
+    const authData = res.data
+    const userPayload = authData?.user || authData
+    if (authData?.token) {
+      localStorage.setItem('autovista_jwt_token', authData.token)
+    }
+    const loggedUser = {
+      id: userPayload.id,
+      name: userPayload.fullName || userPayload.name || userPayload.email?.split('@')[0] || 'User',
+      fullName: userPayload.fullName || userPayload.name || 'User',
+      email: userPayload.email,
+      role: userPayload.role || 'CUSTOMER',
+      phone: userPayload.phone,
+      city: userPayload.city,
+    }
+    setUser(loggedUser)
+    return { success: true, user: loggedUser }
   }
 
   const logout = () => {
@@ -146,6 +110,7 @@ export function AuthProvider({ children }) {
         isConsultant,
         login,
         loginAsDemo,
+        register,
         logout,
       }}
     >

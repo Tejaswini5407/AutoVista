@@ -22,6 +22,8 @@ function BookTestDrivePage() {
 
   const queryVariantId = searchParams.get('variantId')
   const queryUsedCarId = searchParams.get('usedCarId')
+  const queryCarId = searchParams.get('carId')
+  const queryType = searchParams.get('type')
 
   // Data states
   const [newCars, setNewCars] = useState([])
@@ -87,6 +89,15 @@ function BookTestDrivePage() {
           setSelectedVehicleKey(`new-${queryVariantId}`)
         } else if (queryUsedCarId) {
           setSelectedVehicleKey(`used-${queryUsedCarId}`)
+        } else if (queryCarId && (queryType === 'used' || queryType === 'preowned')) {
+          setSelectedVehicleKey(`used-${queryCarId}`)
+        } else if (queryCarId) {
+          const matchedModel = modelsData.find((m) => String(m.id) === String(queryCarId))
+          if (matchedModel?.variants?.length > 0) {
+            setSelectedVehicleKey(`new-${matchedModel.variants[0].id}`)
+          } else {
+            setSelectedVehicleKey(`new-${queryCarId}`)
+          }
         } else if (modelsData.length > 0 && modelsData[0].variants?.length > 0) {
           setSelectedVehicleKey(`new-${modelsData[0].variants[0].id}`)
         } else if (preOwnedData.length > 0) {
@@ -105,7 +116,7 @@ function BookTestDrivePage() {
     return () => {
       mounted = false
     }
-  }, [queryVariantId, queryUsedCarId])
+  }, [queryVariantId, queryUsedCarId, queryCarId, queryType])
 
   // 2. Fetch real-time available time slots for selected showroom and date
   const loadSlots = useCallback(async (date) => {
@@ -329,11 +340,15 @@ function BookTestDrivePage() {
                       type="button"
                       className="btn btn-primary btn-xs"
                       onClick={async () => {
-                        const loggedIn = await loginAsDemo('customer')
-                        if (loggedIn) {
-                          setCustomerName(loggedIn.fullName || loggedIn.name || 'Aarav Sharma')
-                          setCustomerEmail(loggedIn.email || 'aarav.sharma@example.com')
-                          setCustomerPhone(loggedIn.phone || '+91 98765 43210')
+                        try {
+                          const loggedIn = await loginAsDemo('customer')
+                          if (loggedIn) {
+                            setCustomerName(loggedIn.fullName || loggedIn.name || 'Aarav Sharma')
+                            setCustomerEmail(loggedIn.email || 'aarav.sharma@example.com')
+                            setCustomerPhone(loggedIn.phone || '+91 98765 43210')
+                          }
+                        } catch (err) {
+                          setGeneralError(err.message || 'Quick customer sign-in failed. Please verify connection.')
                         }
                       }}
                     >

@@ -48,7 +48,7 @@ function CarsPage() {
 
   // Normalize models for presentation
   const normalizedCars = useMemo(() => {
-    return models.map((m) => normalizeCarModelForCard(m))
+    return models.map((m) => normalizeCarModelForCard(m)).filter(Boolean)
   }, [models])
 
   // Filter cars based on fuel type and maximum price

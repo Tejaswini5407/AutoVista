@@ -37,8 +37,8 @@ function Footer() {
               <li><Link to="/cars">New Arrivals 2026</Link></li>
               <li><Link to="/used-cars">Certified Pre-Owned</Link></li>
               <li><Link to="/book-test-drive">VIP Test Drive Booking</Link></li>
-              <li><Link to="/cars/new-model-h-zx-2026">Featured Model H ZX</Link></li>
-              <li><Link to="/used-cars/used-model-c-vx-2022">Certified Model C VX</Link></li>
+              <li><Link to="/cars">Featured Model H ZX</Link></li>
+              <li><Link to="/used-cars">Certified Model C VX</Link></li>
             </ul>
           </div>
 

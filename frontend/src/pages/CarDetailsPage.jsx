@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getNewCarById, getVariantPricing } from '../services/marketplaceService.js'
+import { getNewCarById, getNewCars, getVariantPricing } from '../services/marketplaceService.js'
 import { formatINR, formatDate } from '../utils/formatters.js'
 import Badge from '../components/Badge.jsx'
 import EnquiryModal from '../components/EnquiryModal.jsx'
@@ -27,7 +27,21 @@ function CarDetailsPage() {
   // Fetch Car Model
   useEffect(() => {
     let ignore = false
-    getNewCarById(id)
+    const isNumeric = /^\d+$/.test(id)
+    const fetchPromise = isNumeric
+      ? getNewCarById(id)
+      : getNewCars().then((cars) => {
+          const match = cars?.find(
+            (c) =>
+              String(c.id) === String(id) ||
+              c.modelName?.toLowerCase().replace(/\s+/g, '-').includes(id.toLowerCase()) ||
+              id.toLowerCase().includes(c.modelName?.toLowerCase().replace(/\s+/g, '-'))
+          )
+          if (match) return getNewCarById(match.id)
+          return getNewCarById(1)
+        })
+
+    fetchPromise
       .then((data) => {
         if (!ignore) {
           setModel(data)

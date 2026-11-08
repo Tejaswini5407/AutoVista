@@ -5,7 +5,7 @@ import useDocumentTitle from '../hooks/useDocumentTitle.js'
 
 function RegisterPage() {
   useDocumentTitle('Create Account')
-  const { login } = useAuth()
+  const { register } = useAuth()
   const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
@@ -16,6 +16,8 @@ function RegisterPage() {
     password: '',
     consent: true,
   })
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -25,14 +27,29 @@ function RegisterPage() {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!formData.consent) {
-      alert('Consent is required to create an account.')
+      setError('Consent is required to create an account.')
       return
     }
-    login(formData.email, formData.password)
-    navigate('/')
+    setError('')
+    setSubmitting(true)
+    try {
+      await register({
+        fullName: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        city: formData.city,
+        password: formData.password,
+        consentGiven: formData.consent,
+      })
+      navigate('/')
+    } catch (err) {
+      setError(err?.message || 'Registration failed. Please check your details and try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -47,6 +64,12 @@ function RegisterPage() {
             </p>
           </div>
 
+          {error && (
+            <div className="alert-box alert-danger" style={{ marginBottom: '1.25rem' }}>
+              <strong>Registration Error:</strong> {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
               <label htmlFor="regName" className="form-label">
@@ -60,6 +83,7 @@ function RegisterPage() {
                 placeholder="e.g., Ananya Trivedi"
                 value={formData.name}
                 onChange={handleChange}
+                disabled={submitting}
                 required
               />
             </div>
@@ -77,6 +101,7 @@ function RegisterPage() {
                   placeholder="name@example.com"
                   value={formData.email}
                   onChange={handleChange}
+                  disabled={submitting}
                   required
                 />
               </div>
@@ -93,6 +118,7 @@ function RegisterPage() {
                   placeholder="+91 98765 00000"
                   value={formData.phone}
                   onChange={handleChange}
+                  disabled={submitting}
                   required
                 />
               </div>
@@ -108,6 +134,7 @@ function RegisterPage() {
                 className="form-select"
                 value={formData.city}
                 onChange={handleChange}
+                disabled={submitting}
               >
                 <option value="Lucknow">Lucknow (Showroom Region)</option>
                 <option value="Kanpur">Kanpur</option>
@@ -129,6 +156,7 @@ function RegisterPage() {
                 placeholder="Minimum 8 characters"
                 value={formData.password}
                 onChange={handleChange}
+                disabled={submitting}
                 required
                 minLength={6}
               />
@@ -142,6 +170,7 @@ function RegisterPage() {
                   name="consent"
                   checked={formData.consent}
                   onChange={handleChange}
+                  disabled={submitting}
                   required
                 />
                 <span>
@@ -150,8 +179,8 @@ function RegisterPage() {
               </label>
             </div>
 
-            <button type="submit" className="btn btn-primary btn-full btn-lg">
-              Complete Registration
+            <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={submitting}>
+              {submitting ? 'Creating Account...' : 'Complete Registration'}
             </button>
           </form>
 

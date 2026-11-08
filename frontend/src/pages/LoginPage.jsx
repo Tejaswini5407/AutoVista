@@ -11,6 +11,8 @@ function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [demoRole, setDemoRole] = useState(null)
 
   const handleManualLogin = async (e) => {
     e.preventDefault()
@@ -18,6 +20,8 @@ function LoginPage() {
       setError('Please provide your email and password.')
       return
     }
+    setSubmitting(true)
+    setError('')
     try {
       const res = await login(email, password)
       const role = res?.user?.role
@@ -29,11 +33,15 @@ function LoginPage() {
         navigate('/')
       }
     } catch (err) {
-      setError(err.message || 'Login failed')
+      setError(err.message || 'Login failed. Please check your credentials.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
   const handleDemoLogin = async (roleKey) => {
+    setDemoRole(roleKey)
+    setError('')
     try {
       const user = await loginAsDemo(roleKey)
       const role = user?.role
@@ -45,9 +53,13 @@ function LoginPage() {
         navigate('/')
       }
     } catch (err) {
-      setError(err.message || 'Demo login failed')
+      setError(err.message || 'Demo login failed. Please check backend connection.')
+    } finally {
+      setDemoRole(null)
     }
   }
+
+  const isBusy = submitting || !!demoRole
 
   return (
     <div className="auth-page">
@@ -70,23 +82,26 @@ function LoginPage() {
               <button
                 type="button"
                 className="btn btn-outline btn-xs"
+                disabled={isBusy}
                 onClick={() => handleDemoLogin('customer')}
               >
-                👤 Customer
+                {demoRole === 'customer' ? 'Signing In...' : '👤 Customer'}
               </button>
               <button
                 type="button"
                 className="btn btn-secondary btn-xs"
+                disabled={isBusy}
                 onClick={() => handleDemoLogin('consultant')}
               >
-                💼 Sales Consultant
+                {demoRole === 'consultant' ? 'Signing In...' : '💼 Sales Consultant'}
               </button>
               <button
                 type="button"
                 className="btn btn-accent btn-xs"
+                disabled={isBusy}
                 onClick={() => handleDemoLogin('admin')}
               >
-                👑 Dealership Admin
+                {demoRole === 'admin' ? 'Signing In...' : '👑 Dealership Admin'}
               </button>
             </div>
           </div>
@@ -103,6 +118,7 @@ function LoginPage() {
                 placeholder="consultant@autovista.in or user@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isBusy}
                 required
               />
             </div>
@@ -118,12 +134,13 @@ function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isBusy}
                 required
               />
             </div>
 
-            <button type="submit" className="btn btn-primary btn-full btn-lg">
-              Sign In to AutoVista
+            <button type="submit" className="btn btn-primary btn-full btn-lg" disabled={isBusy}>
+              {submitting ? 'Signing In...' : 'Sign In to AutoVista'}
             </button>
           </form>
 

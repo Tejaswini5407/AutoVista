@@ -43,6 +43,8 @@ function AdminDashboardPage() {
   const [error, setError] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
   const [actionLoading, setActionLoading] = useState(false)
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authError, setAuthError] = useState(null)
 
   // Modals state
   const [showModelModal, setShowModelModal] = useState(false)
@@ -552,13 +554,31 @@ function AdminDashboardPage() {
               Access to inventory mutation, registration databases, and RTO tax calculations requires{' '}
               <code className="text-accent">ROLE_ADMIN</code>.
             </p>
+
+            {authError && (
+              <div className="alert-box alert-danger mt-4 text-left text-sm">
+                {authError}
+              </div>
+            )}
+
             <div className="mt-6 flex gap-4 justify-center">
               <button
                 type="button"
                 className="btn btn-accent btn-md"
-                onClick={() => loginAsDemo('admin')}
+                disabled={authLoading}
+                onClick={async () => {
+                  setAuthLoading(true)
+                  setAuthError(null)
+                  try {
+                    await loginAsDemo('admin')
+                  } catch (err) {
+                    setAuthError(err.message || 'Admin sign-in failed. Please verify backend connection.')
+                  } finally {
+                    setAuthLoading(false)
+                  }
+                }}
               >
-                👑 Sign In as Dealership Admin (admin@autovista.in)
+                {authLoading ? 'Signing In...' : '👑 Sign In as Dealership Admin (admin@autovista.in)'}
               </button>
             </div>
           </div>
