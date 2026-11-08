@@ -60,9 +60,14 @@ export async function getConsultantLeadById(leadId) {
  * Consultant updates lead status.
  */
 export async function updateConsultantLeadStatus(leadId, status, notes = '') {
+  const payload =
+    typeof status === 'object' && status !== null
+      ? { status: status.status, notes: status.notes || status.note || '' }
+      : { status, notes }
+
   const res = await apiRequest(`/consultant/leads/${leadId}/status`, {
     method: 'PATCH',
-    body: { status, notes },
+    body: payload,
   })
   return res.data
 }

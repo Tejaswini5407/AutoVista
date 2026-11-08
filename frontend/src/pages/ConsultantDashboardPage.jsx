@@ -185,8 +185,10 @@ function ConsultantDashboardPage() {
     setActionError(null)
     setActionSuccess(null)
     try {
-      const updated = await getConsultantAiSummary(activeLead.id)
-      setLeads((prev) => prev.map((l) => (l.id === updated.id ? updated : l)))
+      const summaryText = await getConsultantAiSummary(activeLead.id)
+      setLeads((prev) =>
+        prev.map((l) => (l.id === activeLead.id ? { ...l, aiSummary: summaryText } : l))
+      )
       setActionSuccess('✨ AI Buyer Summary refreshed with verified customer parameters.')
     } catch (err) {
       console.error('Failed to refresh summary:', err)
@@ -343,7 +345,7 @@ function ConsultantDashboardPage() {
             <div className="eyebrow-badge">Sales Desk • Gomti Nagar Flagship</div>
             <h1 className="dashboard-title text-3xl font-bold text-white">Consultant Lead Desk</h1>
             <p className="dashboard-subtitle text-sm text-neutral-400 mt-1">
-              Logged in as <strong>{user?.fullName || 'Vikram Singh'}</strong> ({user?.email || 'vikram.consultant@autovista.in'})
+              Logged in as <strong>{user?.fullName || user?.name || 'Vikram Singh'}</strong> ({user?.email || 'vikram.consultant@autovista.in'})
             </p>
           </div>
 

@@ -20,9 +20,10 @@ function LoginPage() {
     }
     try {
       const res = await login(email, password)
-      if (res.user.role === 'ADMIN') {
+      const role = res?.user?.role
+      if (role === 'ADMIN') {
         navigate('/admin/dashboard')
-      } else if (res.user.role === 'CONSULTANT') {
+      } else if (role === 'CONSULTANT') {
         navigate('/consultant/dashboard')
       } else {
         navigate('/')
@@ -35,9 +36,10 @@ function LoginPage() {
   const handleDemoLogin = async (roleKey) => {
     try {
       const user = await loginAsDemo(roleKey)
-      if (user.role === 'ADMIN') {
+      const role = user?.role
+      if (role === 'ADMIN') {
         navigate('/admin/dashboard')
-      } else if (user.role === 'CONSULTANT') {
+      } else if (role === 'CONSULTANT') {
         navigate('/consultant/dashboard')
       } else {
         navigate('/')

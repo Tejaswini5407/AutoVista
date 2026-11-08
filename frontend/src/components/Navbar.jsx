@@ -70,18 +70,18 @@ function Navbar() {
           {/* User Auth Section */}
           {isAuthenticated ? (
             <div className="user-menu-group">
-              {user.role === 'ADMIN' && (
+              {user?.role === 'ADMIN' && (
                 <Link to="/admin/dashboard" className="btn btn-outline btn-xs" onClick={closeMenu}>
                   Admin
                 </Link>
               )}
-              {user.role === 'CONSULTANT' && (
+              {user?.role === 'CONSULTANT' && (
                 <Link to="/consultant/dashboard" className="btn btn-outline btn-xs" onClick={closeMenu}>
                   Consultant
                 </Link>
               )}
-              <span className="user-greeting" title={user.email}>
-                {user.name.split(' ')[0]}
+              <span className="user-greeting" title={user?.email || ''}>
+                {(user?.name || user?.fullName || user?.email || 'User').split(' ')[0]}
               </span>
               <button
                 type="button"
@@ -143,7 +143,7 @@ function Navbar() {
                     closeMenu()
                   }}
                 >
-                  {t('navSignOut')} ({user.name})
+                  {t('navSignOut')} ({user?.name || user?.fullName || user?.email || 'User'})
                 </button>
               ) : (
                 <Link

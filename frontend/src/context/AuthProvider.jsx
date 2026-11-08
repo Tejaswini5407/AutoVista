@@ -7,6 +7,7 @@ const DEMO_USERS = {
   customer: {
     id: 'user-101',
     name: 'Aarav Sharma',
+    fullName: 'Aarav Sharma',
     email: 'aarav.sharma@example.com',
     role: 'CUSTOMER',
     city: 'Lucknow',
@@ -14,6 +15,7 @@ const DEMO_USERS = {
   consultant: {
     id: 'consultant-201',
     name: 'Vikram Singh',
+    fullName: 'Vikram Singh',
     email: 'vikram.consultant@autovista.in',
     role: 'CONSULTANT',
     branch: 'Lucknow Flagship',
@@ -21,6 +23,7 @@ const DEMO_USERS = {
   admin: {
     id: 'admin-301',
     name: 'Pooja Verma',
+    fullName: 'Pooja Verma',
     email: 'admin@autovista.in',
     role: 'ADMIN',
     dealership: 'AutoVista Lucknow',
@@ -53,13 +56,18 @@ export function AuthProvider({ children }) {
         body: { email, password: 'Password@123' },
       })
       const authData = res.data
-      localStorage.setItem('autovista_jwt_token', authData.token)
+      const userPayload = authData?.user || authData
+      if (authData?.token) {
+        localStorage.setItem('autovista_jwt_token', authData.token)
+      }
       const loggedUser = {
-        id: authData.id,
-        name: authData.name,
-        email: authData.email,
-        role: authData.role,
-        phone: authData.phone,
+        id: userPayload.id,
+        name: userPayload.fullName || userPayload.name || userPayload.email?.split('@')[0] || 'User',
+        fullName: userPayload.fullName || userPayload.name || 'User',
+        email: userPayload.email,
+        role: userPayload.role,
+        phone: userPayload.phone,
+        city: userPayload.city,
       }
       setUser(loggedUser)
       return loggedUser
@@ -78,13 +86,18 @@ export function AuthProvider({ children }) {
         body: { email, password },
       })
       const authData = res.data
-      localStorage.setItem('autovista_jwt_token', authData.token)
+      const userPayload = authData?.user || authData
+      if (authData?.token) {
+        localStorage.setItem('autovista_jwt_token', authData.token)
+      }
       const loggedUser = {
-        id: authData.id,
-        name: authData.name,
-        email: authData.email,
-        role: authData.role,
-        phone: authData.phone,
+        id: userPayload.id,
+        name: userPayload.fullName || userPayload.name || userPayload.email?.split('@')[0] || 'User',
+        fullName: userPayload.fullName || userPayload.name || 'User',
+        email: userPayload.email,
+        role: userPayload.role,
+        phone: userPayload.phone,
+        city: userPayload.city,
       }
       setUser(loggedUser)
       return { success: true, user: loggedUser }
@@ -104,6 +117,7 @@ export function AuthProvider({ children }) {
       const u = {
         id: 'user-' + Date.now(),
         name: email.split('@')[0],
+        fullName: email.split('@')[0],
         email,
         role: 'CUSTOMER',
         city: 'Lucknow',

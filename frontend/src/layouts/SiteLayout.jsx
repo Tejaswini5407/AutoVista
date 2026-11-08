@@ -6,7 +6,9 @@ import ErrorBoundary from '../components/ErrorBoundary.jsx'
 function SiteLayout() {
   return (
     <div className="site-shell">
-      <Navbar />
+      <ErrorBoundary>
+        <Navbar />
+      </ErrorBoundary>
       <main className="main-content">
         <ErrorBoundary>
           <Outlet />
